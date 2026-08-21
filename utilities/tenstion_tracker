@@ -1,0 +1,18 @@
+class TensionTracker:
+    def __init__(self):
+        self.tension = 0
+
+    def add_tension(self, amount: int):
+        self.tension += amount
+
+    def remove_tension(self, amount: int):
+        self.tension -= amount
+        if self.tension < 0:
+            self.tension = 0
+
+    def get_tension(self) -> int:
+        return self.tension
+    
+    def reset_tension(self, player_count: int):
+        # Reset tension based on the number of players in the game
+        self.tension = player_count

@@ -2,7 +2,7 @@ import random
 import nextcord
 
 try:
-    from ..utilities import scaleByFactor as scaleByFactor
+    from . import scaleByFactor as scaleByFactor
     from ..settings import TESTING_SERVER
 except ImportError:
     import scaleByFactor as scaleByFactor
@@ -51,7 +51,7 @@ class MessageMaker():
         self.mf_message = "You have triggered a Mortal Failure!  See Demigod Page 154 for details."
 
     
-    def dice_reader(self, results):
+    def diceReader(self, results):
         message = " "
         for dice in results:
             if dice == 1:
@@ -94,10 +94,10 @@ class MessageMaker():
                 message += " "
         return message
     
-    def sucess_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False,):
-            dice = self.dice_reader(results)
-            divine_dice = self.dice_reader(divine_results)
-            exploded_dice = self.dice_reader(exploded_results)
+    def sucess_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False, divine_sux:int = 0):
+            dice = self.diceReader(results)
+            divine_dice = self.diceReader(divine_results)
+            exploded_dice = self.diceReader(exploded_results)
             divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}\nexploded dice: {exploded_dice}"
             standard_dice_description = f"rolled dice: {dice}\nexploded dice: {exploded_dice}"
             success_description = divine_dice_description if divinity else standard_dice_description
@@ -114,9 +114,9 @@ class MessageMaker():
             embed_response.set_footer(text = self.true_footer)
             return embed_response
     def sucess_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False):
-                dice = self.dice_reader(results)
-                exploded_dice = self.dice_reader(exploded_results)
-                divine_dice = self.dice_reader(divine_results)
+                dice = self.diceReader(results)
+                exploded_dice = self.diceReader(exploded_results)
+                divine_dice = self.diceReader(divine_results)
                 divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}\nexploded dice: {exploded_dice}"
                 standard_dice_description = f"rolled dice: {dice}\nexploded dice: {exploded_dice}"
                 description = divine_dice_description if divinity else standard_dice_description
@@ -135,9 +135,9 @@ class MessageMaker():
             
     
     def fail_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, mf:bool = False):
-        dice = self.dice_reader(results)
-        exploded_dice = self.dice_reader(exploded_results)
-        divine_dice = self.dice_reader(divine_results)
+        dice = self.diceReader(results)
+        exploded_dice = self.diceReader(exploded_results)
+        divine_dice = self.diceReader(divine_results)
         divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}\nexploded dice: {exploded_dice}"
         standard_dice_description = f"rolled dice: {dice}\nexploded dice: {exploded_dice}"
         description = divine_dice_description if divinity else standard_dice_description
@@ -153,9 +153,9 @@ class MessageMaker():
         return embed_response
     
     def fail_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False):
-            dice = self.dice_reader(results)
-            exploded_dice = self.dice_reader(exploded_results)
-            divine_dice = self.dice_reader(divine_results)
+            dice = self.diceReader(results)
+            exploded_dice = self.diceReader(exploded_results)
+            divine_dice = self.diceReader(divine_results)
             divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}\nexploded dice: {exploded_dice}"
             standard_dice_description = f"rolled dice: {dice}\nexploded dice: {exploded_dice}"
             description = divine_dice_description if divinity else standard_dice_description
@@ -171,8 +171,8 @@ class MessageMaker():
             return embed_response
     
     def botch_dramatic(self, interaction:nextcord.Interaction, results, divine_results, sux, difficulty, divinity:bool = False, mortal_fail:bool = False):
-        dice = self.dice_reader(results)
-        divine_dice = self.dice_reader(divine_results)
+        dice = self.diceReader(results)
+        divine_dice = self.diceReader(divine_results)
         divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}"
         standard_dice_description = f"rolled dice: {dice}"
         description = divine_dice_description if divinity else standard_dice_description
@@ -188,8 +188,8 @@ class MessageMaker():
         return embed_response
 
     def initiative(self, interaction:nextcord.Interaction, results, exploded_results, bonuses, initiative):
-        dice = self.dice_reader(results)
-        exploded_dice = self.dice_reader(exploded_results)
+        dice = self.diceReader(results)
+        exploded_dice = self.diceReader(exploded_results)
         embed_response = nextcord.Embed(color=0x1a1aff,title="Initiative", url = self.link_social, description=f"{dice} + {exploded_dice}")
         embed_response.set_author(name= interaction.user.name)
         embed_response.add_field(name="Initiative", value=f"You have created a slot at {initiative}",inline=False)
@@ -199,9 +199,9 @@ class MessageMaker():
         return embed_response    
     
     def attack(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, success, bonuses, defense, divinity:bool = False, divine_modifier:bool = False):
-        dice = self.dice_reader(results)
-        divine_dice = self.dice_reader(divine_results)
-        exploded_dice = self.dice_reader(exploded_results)
+        dice = self.diceReader(results)
+        divine_dice = self.diceReader(divine_results)
+        exploded_dice = self.diceReader(exploded_results)
         divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}\nexploded dice: {exploded_dice}"
         standard_dice_description = f"rolled dice: {dice}\nexploded dice: {exploded_dice}"
         description = divine_dice_description if divinity else standard_dice_description

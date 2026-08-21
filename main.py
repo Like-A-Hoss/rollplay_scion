@@ -19,20 +19,20 @@ if __package__:
     from .settings import SECRET_KEY as SECRET_KEY
     from .settings import TESTING_SERVER as testingServerID
     from .settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
-    from .cogs import scaleByFactor
+    from .utilities import scaleByFactor
     from .cogs.player_attack_resolver import resolve_player_attack_state
-    from .cogs import dice as dice
-    from .cogs import embed_message_maker as embed_message_maker
+    from .utilities import dice as dice
+    from .utilities import embed_message_maker as embed_message_maker
     from .cogs import reactive_defense as reactive_defense
 else:
     from dice_options import RollOptions as RollOptions
     from settings import SECRET_KEY as SECRET_KEY
     from settings import TESTING_SERVER as testingServerID
     from settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
-    from cogs import scaleByFactor
+    from utilities import scaleByFactor
     from cogs.player_attack_resolver import resolve_player_attack_state
-    from cogs import dice as dice
-    from cogs import embed_message_maker as embed_message_maker
+    from utilities import dice as dice
+    from utilities import embed_message_maker as embed_message_maker
     from cogs import reactive_defense as reactive_defense
 
 
@@ -271,6 +271,7 @@ async def narrative_roll(
         dice_pool=dice_pool-divinity_dice,
         enhancement=enhancement,
         hero_type=hero_type,
+        divinity_dice=divinity_dice,
         scale=scale,
         difficulty=difficulty,
         tn=tn,
