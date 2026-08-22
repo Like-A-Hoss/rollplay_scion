@@ -271,6 +271,7 @@ async def narrative_roll(
         dice_pool=dice_pool-divinity_dice,
         enhancement=enhancement,
         hero_type=hero_type,
+        divinity_dice=divinity_dice,
         scale=scale,
         difficulty=difficulty,
         tn=tn,
