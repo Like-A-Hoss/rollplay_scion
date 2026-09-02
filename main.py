@@ -15,22 +15,24 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 if __package__:
-    from .dice_options import RollOptions as RollOptions
+    from .utilities.dice_options import RollOptions as RollOptions
     from .settings import SECRET_KEY as SECRET_KEY
     from .settings import TESTING_SERVER as testingServerID
     from .settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
     from .utilities import scaleByFactor
     from .cogs.player_attack_resolver import resolve_player_attack_state
+    from .cogs.rolls import RollsCog
     from .utilities import dice as dice
     from .utilities import embed_message_maker as embed_message_maker
     from .cogs import reactive_defense as reactive_defense
 else:
-    from dice_options import RollOptions as RollOptions
+    from utilities.dice_options import RollOptions as RollOptions
     from settings import SECRET_KEY as SECRET_KEY
     from settings import TESTING_SERVER as testingServerID
     from settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
     from utilities import scaleByFactor
     from cogs.player_attack_resolver import resolve_player_attack_state
+    from cogs.rolls import RollsCog
     from utilities import dice as dice
     from utilities import embed_message_maker as embed_message_maker
     from cogs import reactive_defense as reactive_defense
@@ -51,15 +53,7 @@ HERO_TYPE_DESCRIPTION = "Choose the hero type, or antagonist power level"
 DIVINITY_DICE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 
-def get_tn(hero_type: str) -> int:
-    if hero_type in {"Origin", "Hero"}:
-        return 8
-    elif hero_type in {"Demigod", "God"}:
-        return 7
-    elif hero_type == "God Feat of Scale":
-        return 6
-    else:
-        raise ValueError(f"Invalid hero type: {hero_type}")
+
 
 
 async def _send_debug_channel_message(message: str):
@@ -156,179 +150,7 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
     except Exception:
         pass
 
-@client.slash_command(name="dramatic_roll", description="Rolls a number of dice, adds in the enhancement and scale modifiers, then subtracts difficulty.")
-async def dramatic_roll(
-    interaction: nextcord.Interaction,
-    dice_pool = RollOptions.dice_pool(),
-    enhancement= RollOptions.enhancement(),
-    hero_type: str = RollOptions.hero_type(),
-    scale: int = RollOptions.scale(),
-    difficulty: int = 1,
-    divinity_dice: int = RollOptions.divinity_dice(),
-    again= RollOptions.again(),
-):
-    try:
-        dice_pool = int(dice_pool)
-        enhancement = int(enhancement)
-        scale = int(scale)
-        difficulty = int(difficulty)
-        divinity_dice = int(divinity_dice)
-        again = int(again)
-    except (TypeError, ValueError):
-        await interaction.response.send_message("Please provide numeric values for the roll options.", ephemeral=True)
-        return
-
-    tn = get_tn(hero_type)
-
-    scion_dice = dice.ScionDice(
-        dice_pool=dice_pool - divinity_dice,
-        enhancement=enhancement,
-        hero_type=hero_type,
-        scale=scale,
-        difficulty=difficulty,
-        tn=tn,
-        divinity_dice=divinity_dice,
-        again=again,
-    )
-    results = scion_dice.roll() 
-    divine_results = scion_dice.roll_divinity()
-    exploded_results = scion_dice.check_explode(results)
-    divine_exploded_results = scion_dice.check_explode(divine_results)
-    exploded_results.extend(divine_exploded_results)
-    successes = scion_dice.count_successes(results, divine_results, exploded_results)
-    message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
-    botched = scion_dice.check_botch(results, exploded_results, successes)
-    successes -= difficulty
-    divinity = True if divinity_dice > 0 else False
-    if successes > 0:
-        embed_response = message_maker.sucess_dramatic(
-            interaction=interaction,
-            results=results,
-            divine_results=divine_results,
-            exploded_results=exploded_results,
-            sux=successes,
-            enhancement=enhancement,
-            scale=scale,
-            difficulty=difficulty,
-            divinity=divinity,
-            cs=scion_dice.check_catastrophic_success(divine_results),
-        )
-    else:
-        mortal_fail = scion_dice.check_mortal_fail(divine_results)
-        if botched:
-            embed_response = message_maker.botch_dramatic(
-                    interaction=interaction,
-                    results=results,
-                    divine_results=divine_results,
-                    sux=successes,
-                    difficulty=difficulty,
-                    divinity=divinity,
-                    mortal_fail=mortal_fail
-                )
-        else:
-            embed_response = message_maker.fail_dramatic(
-                interaction=interaction,
-                results=results,
-                divine_results=divine_results,
-                exploded_results=exploded_results,
-                sux=successes,
-                enhancement=enhancement,
-                scale=scale,
-                difficulty=difficulty,
-                divinity=divinity,
-                mf=mortal_fail,
-            )
-    
-
-    await interaction.response.send_message(embed=embed_response)
-        
-        
-@client.slash_command(name="narrative_roll", description="Rolls a number of dice, adds in the enhancement and scale modifiers, then subtracts difficulty.")
-async def narrative_roll(
-    interaction: nextcord.Interaction,
-    dice_pool: int = RollOptions.dice_pool(),
-    enhancement: int = RollOptions.enhancement(),
-    hero_type: str = RollOptions.hero_type(),
-    scale: int = RollOptions.scale(),
-    difficulty: int = 1,
-    divinity_dice: int = RollOptions.divinity_dice(),
-    again: int = RollOptions.again(),
-):
-    try:
-        dice_pool = int(dice_pool)
-        enhancement = int(enhancement)
-        scale = int(scale)
-        difficulty = int(difficulty)
-        divinity_dice = int(divinity_dice)
-        again = int(again)
-    except (TypeError, ValueError):
-        await interaction.response.send_message("Please provide numeric values for the roll options.", ephemeral=True)
-        return
-
-    tn = get_tn(hero_type)
-
-    scion_dice = dice.ScionDice(
-        dice_pool=dice_pool-divinity_dice,
-        enhancement=enhancement,
-        hero_type=hero_type,
-        divinity_dice=divinity_dice,
-        scale=scale,
-        difficulty=difficulty,
-        tn=tn,
-        again=again,
-    )
-
-    results = scion_dice.roll()
-    divine_results = scion_dice.roll_divinity()
-    exploded_results = scion_dice.check_explode(results)
-    divine_exploded_results = scion_dice.check_explode(divine_results)
-    exploded_results.extend(divine_exploded_results)
-    successes = scion_dice.count_narrative_successes(results, divine_results, exploded_results)
-    botched = scion_dice.check_botch(results, exploded_results, successes)
-    successes -= difficulty
-    message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
-    if successes > 0:
-        embed_response = message_maker.sucess_narrative(
-            interaction=interaction,
-            results=results,
-            divine_results=divine_results,
-            exploded_results=exploded_results,
-            sux=successes,
-            enhancement=enhancement,
-            scale=scale,
-            difficulty=difficulty,
-            divinity=divinity_dice > 0,
-            cs=scion_dice.check_catastrophic_success(divine_results),
-        )
-    else:
-        divinity=True if divinity_dice > 0 else False
-        mortal_fail = scion_dice.check_mortal_fail(divine_results)
-        if botched:
-            embed_response = message_maker.botch_dramatic(
-                interaction=interaction,
-                results=results,
-                divine_results=divine_results,
-                sux=successes,
-                difficulty=difficulty,
-                divinity=divinity,
-                mortal_fail=mortal_fail
-            )
-        else:
-            embed_response = message_maker.fail_narrative(
-                interaction=interaction,
-                results=results,
-                divine_results=divine_results,
-                exploded_results=exploded_results,
-                sux=successes,
-                enhancement=enhancement,
-                scale=scale,
-                difficulty=difficulty,
-                divinity=divinity,
-            )
-    
-
-    await interaction.response.send_message(embed=embed_response)
-    
+                
 @client.slash_command(name="initiative_roll", description="Rolls a number of dice, adds in the enhancement and scale modifiers and generates slots.")
 async def initiative_roll(
     interaction: nextcord.Interaction,
@@ -526,5 +348,7 @@ async def hep_command(interaction):
     embed_response = message_maker.help_embed()
     
     await interaction.response.send_message(embed=embed_response, ephemeral=True)
+
+client.add_cog(RollsCog(client))
 
 client.run(SECRET_KEY)
