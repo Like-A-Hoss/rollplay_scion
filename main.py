@@ -15,27 +15,19 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 if __package__:
-    from .utilities.dice_options import RollOptions as RollOptions
     from .settings import SECRET_KEY as SECRET_KEY
     from .settings import TESTING_SERVER as testingServerID
     from .settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
-    from .utilities import scaleByFactor
-    from .cogs.player_attack_resolver import resolve_player_attack_state
     from .cogs.rolls import RollsCog
-    from .utilities import dice as dice
+    from .cogs.combat import CombatCog
     from .utilities import embed_message_maker as embed_message_maker
-    from .cogs import reactive_defense as reactive_defense
 else:
-    from utilities.dice_options import RollOptions as RollOptions
     from settings import SECRET_KEY as SECRET_KEY
     from settings import TESTING_SERVER as testingServerID
     from settings import REACTIVE_DEFENSE_LOG_CHANNEL as reactiveDefenseLogChannel
-    from utilities import scaleByFactor
-    from cogs.player_attack_resolver import resolve_player_attack_state
     from cogs.rolls import RollsCog
-    from utilities import dice as dice
+    from cogs.combat import CombatCog
     from utilities import embed_message_maker as embed_message_maker
-    from cogs import reactive_defense as reactive_defense
 
 
 
@@ -151,197 +143,6 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
         pass
 
                 
-@client.slash_command(name="initiative_roll", description="Rolls a number of dice, adds in the enhancement and scale modifiers and generates slots.")
-async def initiative_roll(
-    interaction: nextcord.Interaction,
-    dice_pool: int,
-    enhancement: int,
-    hero_type: str = RollOptions.hero_type(),
-    scale: int = RollOptions.scale(),
-    divinity_dice: int = RollOptions.divinity_dice(),
-    again: int = RollOptions.again(),
-):
-    tn = get_tn(hero_type)
-
-    scion_dice = dice.ScionDice(
-        dice_pool=dice_pool-divinity_dice,
-        divinity_dice=divinity_dice,
-        enhancement=enhancement,
-        hero_type=hero_type,
-        scale=scale,
-        difficulty=0,
-        tn=tn,
-        again=again,
-    )
-
-    results = scion_dice.roll()
-    divine_results = scion_dice.roll_divinity()
-    exploded_results = scion_dice.check_explode(results)
-    divine_exploded_results = scion_dice.check_explode(divine_results)
-    exploded_results.extend(divine_exploded_results)
-    successes = scion_dice.count_successes(results, divine_results, exploded_results)
-    botched = scion_dice.check_botch(results, exploded_results, successes)
-    message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
-    
-    bonuses = f"Enhancement Bonus: {enhancement}\nScale Bonus: {scaleByFactor.dramatic_scale(scale)}"
-    
-    embed_response = message_maker.initiative(
-            interaction=interaction,
-            results=results,
-            exploded_results=exploded_results,
-            bonuses=bonuses,
-            initiative=successes
-        )
-    await interaction.response.send_message(embed=embed_response)
-    
-@client.slash_command(name="attack_antagonist", description="For use when attacking an antagonist.")
-async def attack_antagonist(
-    interaction: nextcord.Interaction,
-    dice_pool: int = RollOptions.dice_pool(),
-    enhancement: int = RollOptions.enhancement(),
-    defense: int = nextcord.SlashOption(
-        name="defense",
-        description="The defense value of the antagonist being attacked.",
-        required=True
-    ),
-    hero_type: str = RollOptions.hero_type(),
-    scale: int = RollOptions.scale(),
-    divinity_dice: int = RollOptions.divinity_dice(),
-    again: int = RollOptions.again(),
-):
-    tn = get_tn(hero_type)
-
-    scion_dice = dice.ScionDice(
-        dice_pool=dice_pool-divinity_dice,
-        divinity_dice=divinity_dice,
-        enhancement=enhancement,
-        hero_type=hero_type,
-        scale=scale,
-        difficulty=defense,
-        tn=tn,
-        again=again,
-    )
-    results = scion_dice.roll()
-    divine_results = scion_dice.roll_divinity()
-    exploded_results = scion_dice.check_explode(results)
-    divine_exploded_results = scion_dice.check_explode(divine_results)
-    exploded_results.extend(divine_exploded_results)
-    successes = scion_dice.count_successes(results, divine_results, exploded_results)
-    botched = scion_dice.check_botch(results, exploded_results, successes)
-    successes -= defense
-    message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
-    divinity = True if divinity_dice > 0 else False
-    catastrophic_success = scion_dice.check_catastrophic_success(divine_results) if divinity else False
-    mortal_fail = scion_dice.check_mortal_fail(divine_results) if divinity else False
-    if successes > 0:
-        embed_response = message_maker.attack(
-            interaction=interaction,
-            results=results,
-            divine_results=divine_results,
-            exploded_results=exploded_results,
-            sux=successes,
-            success="success",
-            bonuses=f"Enhancement Bonus: +{enhancement}\nScale Bonus: +{scaleByFactor.dramatic_scale(scale)}extra successes",
-            defense=defense,
-            divinity=divinity,
-            divine_modifier=catastrophic_success,
-        )
-    else:
-        if botched:
-            embed_response = message_maker.attack(
-                interaction=interaction,
-                results=results,
-                divine_results=divine_results,
-                exploded_results=exploded_results,
-                sux=successes,
-                success="botch",
-                bonuses="No bonuses applied",
-                defense=defense,
-                divinity=divinity,
-                divine_modifier=mortal_fail,
-            )
-        else:
-            embed_response = message_maker.attack(
-                interaction=interaction,
-                results=results,
-                divine_results=divine_results,
-                exploded_results = exploded_results,
-                sux=successes,
-                success="failure",
-                bonuses=f"Enhancement Bonus: +{enhancement}\nScale Bonus: +{scaleByFactor.dramatic_scale(scale)}extra successes",
-                defense=defense,
-                divinity=divinity,
-                divine_modifier=mortal_fail,
-            )
-    await interaction.response.send_message(embed=embed_response)
-
-
-@client.slash_command(name="attack_player", description="For use when attacking a player.")
-async def attack_player(
-    interaction: nextcord.Interaction,
-    antagonist_name: str,
-    character_name: str,
-    player: nextcord.Member,
-    attacker_dice_pool: int = RollOptions.dice_pool(),
-    enhancement: int = RollOptions.enhancement(),
-    rollaway_cost: int = nextcord.SlashOption(
-        name="rollaway_cost",
-        description="Enter the roll away cost (attacker Composure or Defense)",
-        required=True,
-    ),
-    attacker_hero_type: str = RollOptions.hero_type(),
-    attack_type: str = nextcord.SlashOption(
-        name="attack_type",
-        description="Choose the attack type",
-        choices=["Melee", "Ranged"],
-    ),
-    scale: int = RollOptions.scale(),
-    divinity_dice: int = RollOptions.divinity_dice(),
-    again: int = RollOptions.again(),
-):
-    tn = get_tn(attacker_hero_type)
-    attack_params = {
-        "dice_pool": attacker_dice_pool,
-        "enhancement": enhancement,
-        "hero_type": attacker_hero_type,
-        "scale": scale,
-        "difficulty": 0,
-        "tn": tn,
-        "again": again,
-        "divinity_dice": divinity_dice,
-    }
-
-    state_id = await reactive_defense.start_defense(
-        interaction,
-        antagonist_name,
-        character_name,
-        player,
-        attack_params,
-        attack_type,
-        rollaway_cost,
-    )
-    await _send_debug_channel_message(
-        f"[attack_player] created reactive defense state: {state_id}"
-    )
-
-
-@client.slash_command(
-    name="attack_player_resolve",
-    description="Resolve a queued attack on a player after defender finalizes their defense.",
-    guild_ids=[int(testingServerID)],
-)
-async def attack_player_resolve(
-    interaction: nextcord.Interaction,
-    state_id: str = nextcord.SlashOption(
-        name="state_id",
-        description="Reactive defense state id to resolve",
-        required=True,
-    ),
-):
-    _, message = await resolve_player_attack_state(client, interaction, state_id)
-    await interaction.response.send_message(message, ephemeral=True)
-    
-
 @client.slash_command(name="help", description="Provides information about the bot and its commands.")
 async def hep_command(interaction):
     message_maker = embed_message_maker.MessageMaker(hero_type="Origin")
@@ -350,5 +151,6 @@ async def hep_command(interaction):
     await interaction.response.send_message(embed=embed_response, ephemeral=True)
 
 client.add_cog(RollsCog(client))
+client.add_cog(CombatCog(client))
 
 client.run(SECRET_KEY)
