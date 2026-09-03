@@ -38,16 +38,8 @@ intents.message_content = True
 
 
 client = commands.Bot(intents=intents)
-# SlashOption constants
-HERO_LEVEL_CHOICES = ["Origin", "Hero", "Demigod", "God", "God Feat of Scale"]
-SCALE_CHOICES = [0, 1, 2, 3, 4, 5, 6]
-HERO_TYPE_DESCRIPTION = "Choose the hero type, or antagonist power level"
-DIVINITY_DICE_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-
-
-
-
+# Deebug channel message function
 async def _send_debug_channel_message(message: str):
     if not reactiveDefenseLogChannel:
         return
@@ -68,6 +60,7 @@ async def _send_debug_channel_message(message: str):
     except Exception:
         return
 
+# Start up
 @client.event
 async def on_ready():
     print("Hello Papa!\n")
@@ -114,7 +107,7 @@ async def on_ready():
             )
         )
 
-
+# debugging information for slash command errors
 @client.event
 async def on_application_command_error(interaction: nextcord.Interaction, error: Exception):
     command_name = "unknown"
@@ -142,15 +135,9 @@ async def on_application_command_error(interaction: nextcord.Interaction, error:
     except Exception:
         pass
 
-                
-@client.slash_command(name="help", description="Provides information about the bot and its commands.")
-async def hep_command(interaction):
-    message_maker = embed_message_maker.MessageMaker(hero_type="Origin")
-    embed_response = message_maker.help_embed()
-    
-    await interaction.response.send_message(embed=embed_response, ephemeral=True)
+client.load_extension("cogs.help")
+client.load_extension("cogs.rolls")
+client.load_extension("cogs.combat")
 
-client.add_cog(RollsCog(client))
-client.add_cog(CombatCog(client))
 
 client.run(SECRET_KEY)
