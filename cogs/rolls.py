@@ -68,6 +68,7 @@ class RollsCog(commands.Cog):
                 results=results,
                 divine_results=divine_results,
                 sux=successes,
+                net_successes=net_successes,
                 difficulty=difficulty,
                 divinity=divinity,
                 mortal_fail=mortal_fail,
@@ -163,7 +164,7 @@ class RollsCog(commands.Cog):
             exploded_results,
         )
         botched = scion_dice.check_botch(results, exploded_results, successes)
-        successes -= difficulty
+        net_successes = successes - difficulty
         divinity = divinity_dice > 0
         mortal_fail = scion_dice.check_mortal_fail(divine_results)
         message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
@@ -174,6 +175,7 @@ class RollsCog(commands.Cog):
                 results=results,
                 divine_results=divine_results,
                 sux=successes,
+                net_successes=net_successes,
                 difficulty=difficulty,
                 divinity=divinity,
                 mortal_fail=mortal_fail,
@@ -185,6 +187,7 @@ class RollsCog(commands.Cog):
                 divine_results=divine_results,
                 exploded_results=exploded_results,
                 sux=successes,
+                net_successes=net_successes,
                 enhancement=enhancement,
                 scale=scale,
                 difficulty=difficulty,
@@ -198,6 +201,7 @@ class RollsCog(commands.Cog):
                 divine_results=divine_results,
                 exploded_results=exploded_results,
                 sux=successes,
+                net_successes=net_successes,
                 enhancement=enhancement,
                 scale=scale,
                 difficulty=difficulty,
