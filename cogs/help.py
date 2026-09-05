@@ -6,7 +6,7 @@ class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(name="help", description="Provides information about the bot and its commands.")
+    @nextcord.slash_command(name="help", description="Provides information about the bot and its commands.")
     async def help_command(self, interaction: nextcord.Interaction):
         message_maker = embed_message_maker.MessageMaker(hero_type="Origin")
         embed_response = message_maker.help_embed()

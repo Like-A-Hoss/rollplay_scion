@@ -5,7 +5,7 @@ try:
     from . import scaleByFactor as scaleByFactor
     from ..settings import TESTING_SERVER
 except ImportError:
-    import scaleByFactor as scaleByFactor
+    from utilities import scaleByFactor as scaleByFactor
     from settings import TESTING_SERVER
 
 
