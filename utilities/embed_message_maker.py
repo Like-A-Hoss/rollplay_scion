@@ -12,8 +12,8 @@ except ImportError:
 class MessageMaker():
     def __init__(self, hero_type=None):
         self.hero_type = hero_type
-        self.dice_to_9 ={"one": "<:rolled1:1002256566717784074>", "two":"<:rolled2:1002256636066418818>", "three":"<:rolled3:1002256664692535407>", "four": "<:rolled4:1002256500607156264> ", "five": "<:rolled5:1002263017708343336> ", "six":"<:rolled6:1534576500530086081> ", "six_good": "<:rolled6sux:1002263051234567890>", "seven-bad": "<:rolled7fail:1533221453758202046>", "seven-good": "<:rolled7:1002263065963802704> ", "eight": "<:rolled8:1002263085597343874> ", "nine": "<:rolled9:1002263106682110013> ", "ten": "<:rolled10:1002264540924358768> "}
-        self.dice_10=["<:kami:1533221773720686714>", "<:Manitou:1533221860932718672>", "<:aesir:1533221551481032714>", "<:annuna:1533221575594217583>", "<:apu:1533221601418412274>", "<:atua:1533221625321754634>", "<:balahala:1533221651078975698>", "<:bogovi:1533221675146019059>", "<:devas:1533221705982546204>", "<:ilhm:1533221733358632980>", "<:kuh:1533221807736492072>", "<:loa:1533221833862676762>", "<:nemetondevos:1533221895523274893>", "<:netjer:1533221921695600650>", "<:orisha:1533221957506568212>", "<:palas:1533222023084380320>", "<:shen:1533222050884358285>", "<:tengri:1533222101329121320>", "<:teotl:1533222133696565531>", "<:theoi:1533222166370320545>", "<tuatha:1533222200398708777>", "<:yazata:1533222227028480134>, <:zemi:1533222276852617376>"]
+        self.dice_to_9 ={"one": "<:rolled1:1002256566717784074>", "two":"<:rolled2:1002256636066418818>", "three":"<:rolled3:1002256664692535407>", "four": "<:rolled4:1002256500607156264> ", "five": "<:rolled5:1002263017708343336> ", "six":"<:rolled6:1534576500530086081> ", "good_six": "<:rolled6sux:1002263051234567890>", "7-bad": "<:rolled7fail:1533221453758202046>", "seven-good": "<:rolled7:1002263065963802704> ", "eight": "<:rolled8:1002263085597343874> ", "nine": "<:rolled9:1002263106682110013> ", "ten": "<:rolled10:1002264540924358768> "}
+        self.dice_10=["<:kami:1533221773720686714>", "<:Manitou:1533221860932718672>", "<:aesir:1533221551481032714>", "<:annuna:1533221575594217583>", "<:apu:1533221601418412274>", "<:atua:1533221625321754634>", "<:balahala:1533221651078975698>", "<:bogovi:1533221675146019059>", "<:devas:1533221705982546204>", "<:ilhm:1533221733358632980>", "<:kuh:1533221807736492072>", "<:loa:1533221833862676762>", "<:nemetondevos:1533221895523274893>", "<:netjer:1533221921695600650>", "<:orisha:1533221957506568212>", "<:palas:1533222023084380320>", "<:shen:1533222050884358285>", "<:tengri:1533222101329121320>", "<:teotl:1533222133696565531>", "<:theoi:1533222200398708777>", "<tuatha:1533222200398708777>", "<:yazata:1533222227028480134>, <:zemi:1533222276852617376>"]
         self.link_footer = "Support Like A Hoss Solutions"
         self.footer_text = "Your support matters | [Patreon](https://www.patreon.com/LikeAHoss) |  [Ko-fi](https://ko-fi.com/Like_a_Hoss)"
         self.true_footer = "If you enjoy this Bot please consider donnating to encourage further development."
@@ -71,7 +71,7 @@ class MessageMaker():
                 message += " "
             if dice == 6:
                 if self.hero_type == "God Feat of Scale":
-                    message += self.dice_to_9["six_good"]
+                    message += self.dice_to_9["good_six"]
                     message += " "
                 else:
                     message += self.dice_to_9["six"]
@@ -81,7 +81,7 @@ class MessageMaker():
                     message += self.dice_to_9["seven-good"]
                     message += " "
                 else:
-                    message += self.dice_to_9["seven-bad"]
+                    message += self.dice_to_9["7-bad"]
                     message += " "
             if dice == 8:
                 message += self.dice_to_9["eight"]
