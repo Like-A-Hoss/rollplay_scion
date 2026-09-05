@@ -59,7 +59,7 @@ class MessageMaker():
         elif self.hero_type == "Demigod" or self.hero_type == "God":
             dice_to_use = self.dice_demigod_to_9
         else:
-            dice_to_use = self.dice_to_9
+            dice_to_use = self.dice_origin_to_9
         message = " "
         for dice in results:
             if dice == 1:
