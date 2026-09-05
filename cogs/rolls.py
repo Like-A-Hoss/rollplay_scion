@@ -58,10 +58,11 @@ class RollsCog(commands.Cog):
         successes = scion_dice.count_successes(results, divine_results, exploded_results)
         message_maker = embed_message_maker.MessageMaker(hero_type=hero_type)
         botched = scion_dice.check_botch(results, exploded_results, successes)
-        successes -= difficulty
+        net_successes = successes - difficulty
         divinity = True if divinity_dice > 0 else False
         mortal_fail = scion_dice.check_mortal_fail(divine_results)
         if botched:
+            net_successes = 0
             embed_response = message_maker.botch_dramatic(
                 interaction=interaction,
                 results=results,
@@ -71,13 +72,14 @@ class RollsCog(commands.Cog):
                 divinity=divinity,
                 mortal_fail=mortal_fail,
             )
-        elif successes > 0:
+        elif net_successes > 0:
             embed_response = message_maker.sucess_dramatic(
                 interaction=interaction,
                 results=results,
                 divine_results=divine_results,
                 exploded_results=exploded_results,
                 sux=successes,
+                net_successes=net_successes,
                 enhancement=enhancement,
                 scale=scale,
                 difficulty=difficulty,
