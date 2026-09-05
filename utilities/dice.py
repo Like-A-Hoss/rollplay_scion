@@ -3,7 +3,7 @@ import random
 try:
     from . import scaleByFactor
 except ImportError:
-    import scaleByFactor
+    import utilities.scaleByFactor as scaleByFactor
 
 class ScionDice():
     def __init__(self, dice_pool:int, enhancement:int, hero_type:str, scale:int, difficulty:int, divinity_dice:int, tn:int, again:int):
@@ -55,7 +55,7 @@ class ScionDice():
             results.append(random.randint(1,10))
         return results
 
-    def count_successes(self, results:list, divine_results:list, exploded_results:list = []):
+    def count_successes(self, results:list, divine_results:list =[], exploded_results:list = []):
         # The explode step should run first, so these are the final dice values.
         successes = sum(1 for die in results if die >= self.tn)
         successes += sum(1 for die in divine_results if die >= self.tn)

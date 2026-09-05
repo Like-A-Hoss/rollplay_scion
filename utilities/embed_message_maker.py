@@ -2,10 +2,10 @@ import random
 import nextcord
 
 try:
-    from . import scaleByFactor
+    from . import scaleByFactor as scaleByFactor
     from ..settings import TESTING_SERVER
 except ImportError:
-    import scaleByFactor
+    from utilities import scaleByFactor as scaleByFactor
     from settings import TESTING_SERVER
 
 
@@ -94,7 +94,7 @@ class MessageMaker():
                 message += " "
         return message
     
-    def sucess_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False, divine_sux:int = 0):
+    def sucess_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, net_successes, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False, divine_sux:int = 0):
             dice = self.diceReader(results)
             divine_dice = self.diceReader(divine_results)
             exploded_dice = self.diceReader(exploded_results)
@@ -103,7 +103,7 @@ class MessageMaker():
             success_description = divine_dice_description if divinity else standard_dice_description
             embed_response = nextcord.Embed(color=0x00ff55,title="SUCCESS", url = self.link_social, description=success_description)
             embed_response.set_author(name= interaction.user.name)
-            embed_response.add_field(name="Successes", value=f"You had {sux} net successes",inline=True)
+            embed_response.add_field(name="Successes", value=f"You had {sux} successes and {net_successes} net successes",inline=True)
             if divinity == True and cs == True:
                 embed_response.add_field(name="Catastrophic Successes", value=self.cs_message, inline=True)
             embed_response.add_field(name="success message", value=f"{random.choice(self.sucess_message)}", inline=False)
@@ -113,7 +113,7 @@ class MessageMaker():
             embed_response.add_field(name = self.link_footer, value=self.footer_text)
             embed_response.set_footer(text = self.true_footer)
             return embed_response
-    def sucess_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False):
+    def sucess_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, net_successes, enhancement, scale, difficulty, divinity:bool = False, cs:bool = False):
                 dice = self.diceReader(results)
                 exploded_dice = self.diceReader(exploded_results)
                 divine_dice = self.diceReader(divine_results)
@@ -122,7 +122,7 @@ class MessageMaker():
                 description = divine_dice_description if divinity else standard_dice_description
                 embed_response = nextcord.Embed(color=0x00ff55,title="SUCCESS", url = self.link_social, description=description)
                 embed_response.set_author(name= interaction.user.name)
-                embed_response.add_field(name="Successes", value=f"You had {sux} successes",inline=True)
+                embed_response.add_field(name="Successes", value=f"You had {sux} successes and {net_successes} net successes",inline=True)
                 if divinity == True and cs == True:
                     embed_response.add_field(name="Catastrophic Successes", value=self.cs_message, inline=False)
                 embed_response.add_field(name="success message", value=f"{random.choice(self.sucess_message)}", inline=False)
@@ -134,7 +134,7 @@ class MessageMaker():
                 return embed_response
             
     
-    def fail_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False, mf:bool = False):
+    def fail_dramatic(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, net_successes, enhancement, scale, difficulty, divinity:bool = False, mf:bool = False):
         dice = self.diceReader(results)
         exploded_dice = self.diceReader(exploded_results)
         divine_dice = self.diceReader(divine_results)
@@ -144,7 +144,7 @@ class MessageMaker():
         embed_response = nextcord.Embed(color=0xcc0000,title="Fail", url = self.link_social, description=description)
         embed_response.set_author(name= interaction.user.name)
         embed_response.add_field(name="Failure", value=random.choice(self.fail_message),inline=False)
-        embed_response.add_field(name="Successes", value=f"you had {sux} successes", inline=True)
+        embed_response.add_field(name="Successes", value=f"you had {sux} successes and {net_successes} net successes", inline=True)
         embed_response.add_field(name="difficulty", value=f"difficulty of {difficulty}", inline=True)
         embed_response.add_field(name="enhancement", value=f"none of your {enhancement}", inline=False)
         embed_response.add_field(name="scale", value=f"none of your bonus of +{scaleByFactor.narrative_scale(scale)}", inline=False)
@@ -152,7 +152,7 @@ class MessageMaker():
         embed_response.set_footer(text = self.true_footer)
         return embed_response
     
-    def fail_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, enhancement, scale, difficulty, divinity:bool = False):
+    def fail_narrative(self, interaction:nextcord.Interaction, results, divine_results, exploded_results, sux, net_successes, enhancement, scale, difficulty, divinity:bool = False):
             dice = self.diceReader(results)
             exploded_dice = self.diceReader(exploded_results)
             divine_dice = self.diceReader(divine_results)
@@ -162,7 +162,7 @@ class MessageMaker():
             embed_response = nextcord.Embed(color=0xcc0000,title="Fail", url = self.link_social, description=description)
             embed_response.set_author(name= interaction.user.name)
             embed_response.add_field(name="Failure", value=random.choice(self.fail_message),inline=False)
-            embed_response.add_field(name="Successes", value=f"you had {sux} successes", inline=True)
+            embed_response.add_field(name="Successes", value=f"you had {sux} successes and {net_successes} net successes", inline=True)
             embed_response.add_field(name="difficulty", value=f"difficulty of {difficulty}", inline=True)
             embed_response.add_field(name="enhancement", value=f"none of your {enhancement}", inline=False)
             embed_response.add_field(name="scale", value=f"sadly zero x{scaleByFactor.narrative_scale(scale)} is still 0", inline=False)
@@ -170,7 +170,7 @@ class MessageMaker():
             embed_response.set_footer(text = self.true_footer)
             return embed_response
     
-    def botch_dramatic(self, interaction:nextcord.Interaction, results, divine_results, sux, difficulty, divinity:bool = False, mortal_fail:bool = False):
+    def botch_dramatic(self, interaction:nextcord.Interaction, results, divine_results, sux, net_successes, difficulty, divinity:bool = False, mortal_fail:bool = False):
         dice = self.diceReader(results)
         divine_dice = self.diceReader(divine_results)
         divine_dice_description = f"rolled dice: {dice}\ndivine dice: {divine_dice}"
@@ -181,7 +181,7 @@ class MessageMaker():
         embed_response.add_field(name="Botched", value=random.choice(self.botch_message),inline=False)
         if divinity == True and mortal_fail == True:
             embed_response.add_field(name="Mortal Failure", value=self.mf_message, inline=True)
-        embed_response.add_field(name="Successes", value=f"you had {sux} successes and at least one 1", inline=True)
+        embed_response.add_field(name="Successes", value=f"you had {sux} successes and {net_successes} net successes and at least one 1", inline=True)
         embed_response.add_field(name="difficulty", value=f"difficulty of {difficulty}", inline=False)
         embed_response.add_field(name = self.link_footer, value=self.footer_text)
         embed_response.set_footer(text = self.true_footer)

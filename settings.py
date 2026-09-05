@@ -24,8 +24,17 @@ def get_optional_parameter(name, default=None):
     except Exception:
         return default
 
-# Fetch bot token
-SECRET_KEY = get_optional_parameter('SECRET_KEY', default=os.getenv('SECRET_KEY'))
+# Fetch Environment
+ENVIRONMENT = get_optional_parameter("ENVIRONMENT", default="prod")
+
+
+# -----------------------------
+# TOKEN SWITCHING LOGIC
+# -----------------------------
+if ENVIRONMENT == "dev":
+    SECRET_KEY = get_optional_parameter("TESTING_BOT_TOKEN")
+else:
+    SECRET_KEY = get_optional_parameter("SECRET_KEY")
 
 # Fetch test server ID
 TESTING_SERVER = get_optional_parameter('TESTING_SERVER', default=os.getenv('TESTING_SERVER'))
@@ -36,3 +45,4 @@ REACTIVE_DEFENSE_LOG_CHANNEL = get_optional_parameter(
     'REACTIVE_DEFENSE_LOG_CHANNEL',
     default=os.getenv('REACTIVE_DEFENSE_LOG_CHANNEL', '1001211424615448607')
 )
+
