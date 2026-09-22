@@ -94,6 +94,7 @@ class RollsCog(commands.Cog):
                 divine_results=divine_results,
                 exploded_results=exploded_results,
                 sux=successes,
+                net_successes=net_successes,
                 enhancement=enhancement,
                 scale=scale,
                 difficulty=difficulty,
